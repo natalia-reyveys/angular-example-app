@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2, Inject } from '@angular/core';
 import { Router } from '@angular/router';
+import {DOCUMENT} from '@angular/common';
 
 import { ArticleListConfig, TagsService, UserService } from '../core';
 
@@ -12,7 +13,9 @@ export class HomeComponent implements OnInit {
   constructor(
     private router: Router,
     private tagsService: TagsService,
-    private userService: UserService
+    private userService: UserService,
+    private renderer2: Renderer2,
+    @Inject(DOCUMENT) private _document,
   ) {}
 
   isAuthenticated: boolean;
@@ -24,6 +27,15 @@ export class HomeComponent implements OnInit {
   tagsLoaded = false;
 
   ngOnInit() {
+    const s = this.renderer2.createElement('script');
+    s.type = 'text/javascript';
+    s.src = 'https://staging.terracycle.com/en-US/sdk_v2.js';
+    s.text = ` (function(f,a,d,g,e,b,c){f.TerraCycleObject=e;f[e]=f[e]||function(){
+      (f[e].q=f[e].q||[]).push(arguments)};f[e].t=1*new Date();b=a.createElement(d);
+      c=a.getElementsByTagName(d)[0];b.async=1;b.src=g;c.parentNode.insertBefore(b,c)
+    })`;
+    this.renderer2.appendChild(this._document.body, s);
+
     this.userService.isAuthenticated.subscribe(
       (authenticated) => {
         this.isAuthenticated = authenticated;
